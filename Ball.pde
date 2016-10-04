@@ -25,6 +25,8 @@ class Ball {
     xoffset = xoff;
     yoffset = yoff;
     zoffset = zoff;
+    
+    setColor();
   }
 
   void run(float personPosition, int i) {
@@ -61,7 +63,13 @@ class Ball {
       box(60, 10, 40);
       sphereDetail(6);
       translate(0, 5, 0);
-      sphere(8);
+      // The line height will be representative to the ball height
+      line(0, 0, 0, 0, 25, 0);
+      fill(red, green, blue);
+      noStroke();
+      sphere(10);
+      fill(255, 255, 255);
+      stroke(0);
       //translate(20, 0, 0);
       //sphere(8);
       popMatrix();
@@ -79,5 +87,11 @@ class Ball {
           rdeg += rotateIncrease;
         }   
       }
+  }
+  
+  void setColor() {
+    red = random(0, 255);
+    green = random(0, 255);
+    blue = random(0, 255);
   }
 }
