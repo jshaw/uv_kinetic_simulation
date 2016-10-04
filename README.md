@@ -1,1 +1,3 @@
-# kinetic-simulation
+# Kinetic Simulation
+
+Documentation to be added as dev. happens.
