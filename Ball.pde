@@ -73,18 +73,32 @@ class Ball {
           rotationDirection = 1;
         }
         
-        if(rotationDirection == 1){
-          rdeg -= rotateIncrease;
-        } else {
-          rdeg += rotateIncrease;
-        }   
+        //if(rotationDirection == 1){
+        //  rdeg -= rotateIncrease;
+        //} else {
+        //  rdeg += rotateIncrease;
+        //}   
       }
   }
   
+  // Sets the default colors randomly
+  // only run once from the constructor
   void setColor() {
     red = random(0, 255);
     green = random(0, 255);
     blue = random(0, 255);
+  }
+  
+  void updateColor(float r, float g, float b) {
+    red = map(r, -239, 242, 73, 222);
+    green = map(g, -239, 242, 160, 73);
+    blue = map(b, -239, 242, 222, 148);
+  }
+  
+  void updateRandomColor() {
+    red = map(ypos, -239, 242, 73, 222);
+    green = map(ypos, -239, 242, 160, 73);
+    blue = map(ypos, -239, 242, 222, 148);
   }
   
   void setDebug(boolean debug) {

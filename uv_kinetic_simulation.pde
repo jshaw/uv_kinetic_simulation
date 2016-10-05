@@ -17,12 +17,14 @@ UDP udp;  // define the UDP object
 // https://forum.processing.org/one/topic/help-with-controlp5.html
 // https://forum.processing.org/two/discussion/2487/need-help-with-controlp5-and-rotating-objects
 
-
 // Ball 2d array
 Ball[][] balls;
 
+boolean USEPACKET = false;
+
 float ratio = 5.0;
 String packet = "001000004153432d45312e3137000000726e00000004c8bc8891a9064403a819a3f86f9fa0b27258000000024e415448414e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400005300000b720b02a1000000010201007373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373730000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+String OSCPacket = "47,100,109,120,47,117,110,105,118,101,114,115,101,47,49,0,44,98,0,0,0,0,2,0,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,";
 
 boolean debug = true;
 float xgrid = 22;
@@ -32,6 +34,8 @@ float spacing = 16.0 * ratio;
 float personPosition = 0.0;
 float personPositionMoveValue = 5.0;
 
+float speed = 200.0;
+
 // even though we are finding the offset for x we need to figure out why this needs to be flipped 
 // something about itterating through the matrix / 2d array
 float xoffset = spacing * xgrid;
@@ -40,7 +44,10 @@ float zoffset = spacing * zgrid;
 
 float theta = 0.0;  // Start angle at 0
 float amplitude = (120.0 * ratio) / 2;  // Height of wave
-float period = 200.0;  // How many pixels before the wave repeats
+// How many pixels before the wave repeats
+//float period = 200.0;
+//float period = 230;
+float period = 320.36;
 float dx;  // Value for incrementing X, a function of period and xspacing
 
 void setup() {
@@ -55,9 +62,10 @@ void setup() {
   
   // sine wave period
   cp5.addSlider("period")
-   .setPosition(100,50)
+   .setPosition(100, 50)
    .setSize(100, 25)
-   .setRange(1,500);
+   .setRange(1, 500)
+   .setValue(320.36);
    
   // sine wave spacing
   cp5.addSlider("spacing")
@@ -65,11 +73,20 @@ void setup() {
    .setSize(100, 25)
    .setRange(0,100);
    
+  cp5.addSlider("speed")
+   .setPosition(100, 150)
+   .setSize(100, 25)
+   .setRange(255,0)
+   .setValue(200.0);
+   
   cp5.getController("period").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
   cp5.getController("period").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
   
   cp5.getController("spacing").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
   cp5.getController("spacing").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
+  
+  cp5.getController("speed").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
+  cp5.getController("speed").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
    
   cp5.setAutoDraw(false);
   
@@ -127,6 +144,10 @@ void draw() {
   drawOrigin();
   drawPerson(floorPos);
   
+  if(USEPACKET == true){
+    parsePacket();
+  }
+  
   pushMatrix();
     rotateX(radians(90));
     translate(0, 0, 8);
@@ -135,9 +156,9 @@ void draw() {
     rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
   popMatrix();
   
-  theta += 0.02;
+  //theta += 0.02;
+  theta += map(speed, 255, 0, 0, 0.1);
   float x = theta;
-  float y = theta;
   
   // Switched to a 2d array for easy universe access
   for(int i = 0; i < xgrid; i++){
@@ -146,11 +167,13 @@ void draw() {
       p.run(personPosition, i);
       p.setDebug(debug);
       float ypos = sin(x) * amplitude;
-      //float ypos = ( sin( x ) + cos( y ) ) * amplitude;
       p.setYPos(ypos);
-      x += dx;
-      y += dx;
+      p.updateRandomColor();
       
+      // the rpacket, gpacket, bpacket are taken from the DMX universe for the 
+      // appropirate row and column
+      //p.updateColor(rpacket, gpacket, bpacket);
+      x += dx;
     }
   }
   
@@ -173,6 +196,10 @@ void gui() {
   cp5.draw();
   cam.endHUD();
   hint(ENABLE_DEPTH_TEST);
+}
+
+void parsePacket() {
+  println(OSCPacket);
 }
 
 void keyPressed(){
