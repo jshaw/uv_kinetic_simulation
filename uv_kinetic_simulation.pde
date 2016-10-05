@@ -7,7 +7,8 @@ PeasyCam cam;
 import hypermedia.net.*;
 UDP udp;  // define the UDP object
 
-ArrayList<Ball> balls;
+// Ball 2d array
+Ball[][] balls;
 
 float ratio = 5.0;
 String packet = "001000004153432d45312e3137000000726e00000004c8bc8891a9064403a819a3f86f9fa0b27258000000024e415448414e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400005300000b720b02a1000000010201007373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373730000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
@@ -26,13 +27,6 @@ float xoffset = spacing * xgrid;
 float yoffset = spacing * ygrid;
 float zoffset = spacing * zgrid;
 
-// it might be useful to look into the Shapes 3d library with the Picking example (S3D4P)
-// I might need to re-wrtie what boxes get created
-// but could be helpful for making examples
-// Here are some docs: http://lagers.org.uk/s3d4p/ref/classshapes3d_1_1_shape3_d.html#ad036b3944ac848ce4cb716395e980092
-
-// For the time being create a 3d shape and move it around with the arrow keys... for now rather then mouse movement
-
 float theta = 0.0;  // Start angle at 0
 float amplitude = (120.0 * ratio) / 2;  // Height of wave
 float period = 500.0;  // How many pixels before the wave repeats
@@ -46,6 +40,9 @@ void setup() {
   frameRate(30);
   smooth(8);
   
+  // init the balls array
+  balls = new Ball[(int)xgrid][(int)zgrid];
+  
   // create a new datagram connection on port 6000
   // and wait for incomming message
   udp = new UDP( this, 5568 );
@@ -56,8 +53,6 @@ void setup() {
   cam = new PeasyCam(this, width/2, height/2 + 200, 0, 4000);
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(4000);
- 
-  balls = new ArrayList<Ball>();
   
   dx = (TWO_PI / period) * spacing;
   
@@ -76,10 +71,11 @@ void setup() {
       //println("zoffset: " + zoffset);
       //println("=============");
       
-      // NOTE: IMPORTANT: It might make sense to put this into a 2d array for easy access and updates down below
-      // the reason being is that we are going to use 22 different universes so it would make it really easy
-      // to target the correct row or column with the sent packet.
-      balls.add(new Ball(xpos, ypos, zpos, xoffset, yoffset, zoffset, r, g, b, m, s));
+      // I'm storying the ball objects into a 2d array
+      // this is done for easy access to each of the the 22 universes.
+      // This is done via the universe number from the UDP packet
+      // and the row or column can be directly refferences and retreived
+      balls[x][z] = new Ball(xpos, ypos, zpos, xoffset, yoffset, zoffset, r, g, b, m, s);
     }
   }
   
@@ -87,7 +83,8 @@ void setup() {
 
 void draw() {
   background(255);   // Clear the screen with a black background
-  translate(width/2,height/2);
+  //translate(width/2,height/2);
+  translate(width/2, -height/10);
   rectMode(CORNER);
   
   float floorPos = -(120.0 * ratio * 1.8);
@@ -105,14 +102,18 @@ void draw() {
   
   theta += 0.02;
   float x = theta;
-  // As mentioned above, would be good to pull from a 2d array here
-  for (int i = balls.size()-1; i >= 0; i--) {
-    Ball p = balls.get(i);
-    p.run(personPosition, i);
-    p.setDebug(debug);
-    float ypos = sin(x)*amplitude;
-    p.setYPos(ypos);
-    x+=dx;
+  
+  // Switched to a 2d array for easy universe access
+  for(int i = 0; i < xgrid; i++){
+    for(int j = 0; j < zgrid; j++){
+      Ball p = balls[i][j];
+      p.run(personPosition, i);
+      p.setDebug(debug);
+      float ypos = sin(x)*amplitude;
+      p.setYPos(ypos);
+      x+=dx;
+      
+    }
   }
   
   pushMatrix();
