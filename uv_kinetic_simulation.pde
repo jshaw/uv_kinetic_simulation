@@ -4,18 +4,25 @@ PeasyCam cam;
 ArrayList<Ball> balls;
 
 boolean debug = true;
-float x = 22;
-float y = 22;
-float z = 0;
+//float x = 22;
+//float y = 22;
+//float z = 0;
+float xgrid = 22;
+float ygrid = 0;
+float zgrid = 22;
 int spacing = 80;
 float personPosition = 0.0;
 float personPositionMoveValue = 5.0;
 
 // even though we are finding the offset for x we need to figure out why this needs to be flipped 
 // something about itterating through the matrix / 2d array
-float xoffset = spacing * y;
-float yoffset = spacing * x;
-float zoffset = spacing * z;
+//float xoffset = spacing * y;
+//float yoffset = spacing * x;
+//float zoffset = spacing * z;
+
+float xoffset = spacing * xgrid;
+float yoffset = spacing * ygrid;
+float zoffset = spacing * zgrid;
 
 // it might be useful to look into the Shapes 3d library with the Picking example (S3D4P)
 // I might need to re-wrtie what boxes get created
@@ -37,17 +44,28 @@ void setup() {
   cam = new PeasyCam(this, width/2, height/2 + 200, 0, 4000);
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(4000);
+  
+  //camera();
+  //camera(70.0, 35.0, 120.0, 50.0, 50.0, 0.0, 0.0, 1.0, 0.0);
  
   balls = new ArrayList<Ball>();
   
-  float zpos = 0;
+  //float zpos = 0;
+  float ypos = 0;
   float r = 0, g = 0, b = 0, m = 0, s = 0;
   
-  for(int i = 0; i < x; i++){
+  for(int x = 0; x < xgrid; x++){
     //translate(-width/2, height/2);
-    float ypos = i * spacing;
-    for(int j = 0; j < y; j++){
-      float xpos = j * spacing;
+    float xpos = x * spacing;
+    for(int z = 0; z < zgrid; z++){
+      float zpos = z * spacing;
+      println("xpos: " + xpos);
+      println("ypos: " + ypos);
+      println("zpos: " + zpos);
+      println("xoffset: " + xoffset);
+      println("yoffset: " + yoffset);
+      println("zoffset: " + zoffset);
+      println("=============");
       balls.add(new Ball(xpos, ypos, zpos, xoffset, yoffset, zoffset, r, g, b, m, s));
     }
   }
@@ -65,10 +83,10 @@ void draw() {
     //translate(0, 0, 0);
     //rect(-yoffset/2 -75, -xoffset/2 - 200, yoffset + 75, xoffset + 200);
     rotateX(radians(90));
-    translate(0, yoffset/2, 0 );
-    rect(-yoffset/2 - 75, -xoffset/2, yoffset + 75, xoffset);
-    translate(0, 0, -650);
-    rect(-yoffset/2 - 75, -xoffset/2, yoffset + 75, xoffset);
+    translate(0, 0, 8);
+    rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
+    translate(0, 0, -658);
+    rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
   popMatrix();
 
   // testing line

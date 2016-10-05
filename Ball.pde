@@ -39,7 +39,7 @@ class Ball {
     float s = personPosition - 50;
     float e = personPosition + 50;
     if( -(yoffset/2) + ypos > s && -(yoffset/2) + ypos < e ){
-      println("PERSON IS IN FRONT OF SENSOR: " + i);
+      //println("PERSON IS IN FRONT OF SENSOR: " + i);
       inFrontOf = true;
       rdeg = 1;
     } else {
@@ -53,7 +53,9 @@ class Ball {
       pushMatrix();
       //translate(-(5 * 80)/2 + xpos, (1 * 80)/2 + ypos);
       //translate(-(yoffset/2) + ypos, 0 ,-(xoffset/2) + xpos);
-      translate(-(yoffset/2) + ypos, 10, xpos);
+      //translate(-(yoffset/2) + ypos, 10, xpos);
+      
+      translate(-(xoffset/2) + xpos, ypos, zpos);
       
       // This does a constant 360 rotation
       //rotateX(frameCount*radians(90) / 20);
