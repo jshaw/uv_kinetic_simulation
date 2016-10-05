@@ -66,7 +66,7 @@ class Ball {
         //triangle(-30, 30, 0, -30, 30, 30);
         box(60, 10, 40);
         // The line height will be representative to the ball height
-        line(0, 0, 0, 0, 25, 0);
+        line(0, 0, 0, 0, 200 + ypos, 0);
       popMatrix();
       
       pushMatrix();
