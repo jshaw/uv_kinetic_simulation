@@ -3,9 +3,20 @@
 import peasy.*;
 PeasyCam cam;
 
+// add sliders
+import controlP5.*;
+ControlP5 cp5;
+
 // import UDP library
 import hypermedia.net.*;
 UDP udp;  // define the UDP object
+
+// Could be good use for adjusting for tests
+// http://codec.trembl.org/614/
+// search : help-with-controlp5.html
+// https://forum.processing.org/one/topic/help-with-controlp5.html
+// https://forum.processing.org/two/discussion/2487/need-help-with-controlp5-and-rotating-objects
+
 
 // Ball 2d array
 Ball[][] balls;
@@ -29,7 +40,7 @@ float zoffset = spacing * zgrid;
 
 float theta = 0.0;  // Start angle at 0
 float amplitude = (120.0 * ratio) / 2;  // Height of wave
-float period = 500.0;  // How many pixels before the wave repeats
+float period = 200.0;  // How many pixels before the wave repeats
 float dx;  // Value for incrementing X, a function of period and xspacing
 
 void setup() {
@@ -39,6 +50,28 @@ void setup() {
   stroke(0);
   frameRate(30);
   smooth(8);
+  
+  cp5 = new ControlP5(this);
+  
+  // sine wave period
+  cp5.addSlider("period")
+   .setPosition(100,50)
+   .setSize(100, 25)
+   .setRange(1,500);
+   
+  // sine wave spacing
+  cp5.addSlider("spacing")
+   .setPosition(100, 100)
+   .setSize(100, 25)
+   .setRange(0,100);
+   
+  cp5.getController("period").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
+  cp5.getController("period").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
+  
+  cp5.getController("spacing").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
+  cp5.getController("spacing").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
+   
+  cp5.setAutoDraw(false);
   
   // init the balls array
   balls = new Ball[(int)xgrid][(int)zgrid];
@@ -89,6 +122,8 @@ void draw() {
   
   float floorPos = -(120.0 * ratio * 1.8);
   
+  dx = (TWO_PI / period) * spacing;
+  
   drawOrigin();
   drawPerson(floorPos);
   
@@ -102,6 +137,7 @@ void draw() {
   
   theta += 0.02;
   float x = theta;
+  float y = theta;
   
   // Switched to a 2d array for easy universe access
   for(int i = 0; i < xgrid; i++){
@@ -109,22 +145,34 @@ void draw() {
       Ball p = balls[i][j];
       p.run(personPosition, i);
       p.setDebug(debug);
-      float ypos = sin(x)*amplitude;
+      float ypos = sin(x) * amplitude;
+      //float ypos = ( sin( x ) + cos( y ) ) * amplitude;
       p.setYPos(ypos);
-      x+=dx;
+      x += dx;
+      y += dx;
       
     }
   }
   
   pushMatrix();
-  textSize(32);
-  fill(0);
-  text("mouseX", -width/2 - 800, -height/2 + 280);
-  text(mouseX, -width/2 - 600, -height/2 + 280);
-  text("mouseY", -width/2 - 800, -height/2 + 320);
-  text(mouseY, -width/2 - 600, -height/2 + 320);
-  fill(255);
-  popMatrix();  
+    textSize(32);
+    fill(0);
+    text("mouseX", -width/2 - 800, -height/2 + 280);
+    text(mouseX, -width/2 - 600, -height/2 + 280);
+    text("mouseY", -width/2 - 800, -height/2 + 320);
+    text(mouseY, -width/2 - 600, -height/2 + 320);
+    fill(255);
+  popMatrix();
+  
+  gui();
+}
+
+void gui() {
+  hint(DISABLE_DEPTH_TEST);
+  cam.beginHUD();
+  cp5.draw();
+  cam.endHUD();
+  hint(ENABLE_DEPTH_TEST);
 }
 
 void keyPressed(){
