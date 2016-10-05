@@ -75,6 +75,10 @@ void setup() {
       //println("yoffset: " + yoffset);
       //println("zoffset: " + zoffset);
       //println("=============");
+      
+      // NOTE: IMPORTANT: It might make sense to put this into a 2d array for easy access and updates down below
+      // the reason being is that we are going to use 22 different universes so it would make it really easy
+      // to target the correct row or column with the sent packet.
       balls.add(new Ball(xpos, ypos, zpos, xoffset, yoffset, zoffset, r, g, b, m, s));
     }
   }
@@ -101,6 +105,7 @@ void draw() {
   
   theta += 0.02;
   float x = theta;
+  // As mentioned above, would be good to pull from a 2d array here
   for (int i = balls.size()-1; i >= 0; i--) {
     Ball p = balls.get(i);
     p.run(personPosition, i);
