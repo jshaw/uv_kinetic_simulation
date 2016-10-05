@@ -4,9 +4,6 @@ PeasyCam cam;
 ArrayList<Ball> balls;
 
 boolean debug = true;
-//float x = 22;
-//float y = 22;
-//float z = 0;
 float xgrid = 22;
 float ygrid = 0;
 float zgrid = 22;
@@ -16,10 +13,6 @@ float personPositionMoveValue = 5.0;
 
 // even though we are finding the offset for x we need to figure out why this needs to be flipped 
 // something about itterating through the matrix / 2d array
-//float xoffset = spacing * y;
-//float yoffset = spacing * x;
-//float zoffset = spacing * z;
-
 float xoffset = spacing * xgrid;
 float yoffset = spacing * ygrid;
 float zoffset = spacing * zgrid;
@@ -31,6 +24,11 @@ float zoffset = spacing * zgrid;
 
 // For the time being create a 3d shape and move it around with the arrow keys... for now rather then mouse movement
 
+float theta = 0.0;  // Start angle at 0
+float amplitude = 200.0;  // Height of wave
+float period = 500.0;  // How many pixels before the wave repeats
+float dx;  // Value for incrementing X, a function of period and xspacing
+
 void setup() {
   //size(800, 600, P3D);
   size(1280, 1000, P3D);
@@ -38,24 +36,19 @@ void setup() {
   stroke(0);
   frameRate(30);
   smooth(8);
-  //translate((spacing * y) / 2, (spacing * x) / 2);
-  //translate(-width/2, height/2);
   
   cam = new PeasyCam(this, width/2, height/2 + 200, 0, 4000);
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(4000);
-  
-  //camera();
-  //camera(70.0, 35.0, 120.0, 50.0, 50.0, 0.0, 0.0, 1.0, 0.0);
  
   balls = new ArrayList<Ball>();
   
-  //float zpos = 0;
+  dx = (TWO_PI / period) * spacing;
+  
   float ypos = 0;
   float r = 0, g = 0, b = 0, m = 0, s = 0;
   
   for(int x = 0; x < xgrid; x++){
-    //translate(-width/2, height/2);
     float xpos = x * spacing;
     for(int z = 0; z < zgrid; z++){
       float zpos = z * spacing;
@@ -77,11 +70,10 @@ void draw() {
   translate(width/2,height/2);
   rectMode(CORNER);
   
+  drawOrigin();
   drawPerson();
   
   pushMatrix();
-    //translate(0, 0, 0);
-    //rect(-yoffset/2 -75, -xoffset/2 - 200, yoffset + 75, xoffset + 200);
     rotateX(radians(90));
     translate(0, 0, 8);
     rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
@@ -103,9 +95,15 @@ void draw() {
   //triangle(-30, 30, 0, -30, 30, 30);
   //popMatrix();
   
+  theta += 0.02;
+  float x = theta;
   for (int i = balls.size()-1; i >= 0; i--) {
     Ball p = balls.get(i);
     p.run(personPosition, i);
+    p.setDebug(debug);
+    float ypos = sin(x)*amplitude;
+    p.setYPos(ypos);
+    x+=dx;
   }
   
   pushMatrix();
@@ -138,6 +136,13 @@ void mousePressed() {
   debug = !debug;
 }
 
+void drawOrigin() {
+  pushMatrix();
+    translate(0,0, -75);
+    sphereDetail(6);
+    sphere(50);
+  popMatrix();
+}
 
 // This might be helpful for testing interactions later
 void drawPerson() {
