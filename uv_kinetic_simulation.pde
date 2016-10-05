@@ -3,11 +3,15 @@ PeasyCam cam;
 
 ArrayList<Ball> balls;
 
+// the ration to scale 1:5 in this simulation 
+
+float ratio = 5.0;
+
 boolean debug = true;
 float xgrid = 22;
 float ygrid = 0;
 float zgrid = 22;
-int spacing = 80;
+float spacing = 16.0 * ratio;
 float personPosition = 0.0;
 float personPositionMoveValue = 5.0;
 
@@ -25,7 +29,7 @@ float zoffset = spacing * zgrid;
 // For the time being create a 3d shape and move it around with the arrow keys... for now rather then mouse movement
 
 float theta = 0.0;  // Start angle at 0
-float amplitude = 200.0;  // Height of wave
+float amplitude = (120.0 * ratio) / 2;  // Height of wave
 float period = 500.0;  // How many pixels before the wave repeats
 float dx;  // Value for incrementing X, a function of period and xspacing
 
@@ -70,14 +74,16 @@ void draw() {
   translate(width/2,height/2);
   rectMode(CORNER);
   
+  float floorPos = -(120.0 * ratio * 1.8);
+  
   drawOrigin();
-  drawPerson();
+  drawPerson(floorPos);
   
   pushMatrix();
     rotateX(radians(90));
     translate(0, 0, 8);
     rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
-    translate(0, 0, -658);
+    translate(0, 0, floorPos);
     rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
   popMatrix();
 
@@ -145,9 +151,9 @@ void drawOrigin() {
 }
 
 // This might be helpful for testing interactions later
-void drawPerson() {
+void drawPerson(float floorPos) {
   pushMatrix();
-  translate(personPosition, 500, 600); 
+  translate(personPosition, -floorPos - 160, 600); 
   fill(220, 20);
   box(100, 300, 20);
   popMatrix();

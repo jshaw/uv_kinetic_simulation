@@ -49,37 +49,21 @@ class Ball {
   
   // Method to display
   void display() {
-      
+      float offsetMovement = (120 * 5 / 2) + (8 * 5) / 2;
       pushMatrix();
-        //translate(-(5 * 80)/2 + xpos, (1 * 80)/2 + ypos);
-        //translate(-(yoffset/2) + ypos, 0 ,-(xoffset/2) + xpos);
-        //translate(-(yoffset/2) + ypos, 10, xpos);
-        
-        //translate(-(xoffset/2) + xpos, ypos, zpos);
-        
         translate(-(xoffset/2) + xpos, 0, zpos);
-        
-        // This does a constant 360 rotation
-        //rotateX(frameCount*radians(90) / 20);
-        //rotateX(rdeg);
-        //translate(0, -60);
-        //triangle(-30, 30, 0, -30, 30, 30);
-        box(60, 10, 40);
+        box(60, 10, 60);
         // The line height will be representative to the ball height
-        line(0, 0, 0, 0, 200 + ypos, 0);
+        line(0, 0, 0, 0, offsetMovement + ypos, 0);
       popMatrix();
       
       pushMatrix();
-        translate(-(xoffset/2) + xpos, 200 + ypos, zpos);
-        sphereDetail(6);
-        translate(0, 5, 0);
+        translate(-(xoffset/2) + xpos, offsetMovement + ypos, zpos);
         fill(red, green, blue);
         noStroke();
-        sphere(10);
+        sphere((8 * 5) / 2);
         fill(255, 255, 255);
         stroke(0);
-        //translate(20, 0, 0);
-        //sphere(8);
       popMatrix();
       
       if(inFrontOf == false){
