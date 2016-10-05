@@ -1,11 +1,16 @@
+// the ration to scale 1:5 in this simulation
+
 import peasy.*;
 PeasyCam cam;
 
+// import UDP library
+import hypermedia.net.*;
+UDP udp;  // define the UDP object
+
 ArrayList<Ball> balls;
 
-// the ration to scale 1:5 in this simulation 
-
 float ratio = 5.0;
+String packet = "001000004153432d45312e3137000000726e00000004c8bc8891a9064403a819a3f86f9fa0b27258000000024e415448414e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400005300000b720b02a1000000010201007373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373730000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 
 boolean debug = true;
 float xgrid = 22;
@@ -41,6 +46,13 @@ void setup() {
   frameRate(30);
   smooth(8);
   
+  // create a new datagram connection on port 6000
+  // and wait for incomming message
+  udp = new UDP( this, 5568 );
+  // <-- printout the connection activity
+  udp.log( true );     
+  udp.listen( true );
+  
   cam = new PeasyCam(this, width/2, height/2 + 200, 0, 4000);
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(4000);
@@ -56,13 +68,13 @@ void setup() {
     float xpos = x * spacing;
     for(int z = 0; z < zgrid; z++){
       float zpos = z * spacing;
-      println("xpos: " + xpos);
-      println("ypos: " + ypos);
-      println("zpos: " + zpos);
-      println("xoffset: " + xoffset);
-      println("yoffset: " + yoffset);
-      println("zoffset: " + zoffset);
-      println("=============");
+      //println("xpos: " + xpos);
+      //println("ypos: " + ypos);
+      //println("zpos: " + zpos);
+      //println("xoffset: " + xoffset);
+      //println("yoffset: " + yoffset);
+      //println("zoffset: " + zoffset);
+      //println("=============");
       balls.add(new Ball(xpos, ypos, zpos, xoffset, yoffset, zoffset, r, g, b, m, s));
     }
   }
@@ -86,20 +98,6 @@ void draw() {
     translate(0, 0, floorPos);
     rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
   popMatrix();
-
-  // testing line
-  //y = y - 1; 
-  //if (y < 0) { 
-  //  y = height; 
-  //} 
-  
-  //line(0, y, width, y); 
-  
-  //pushMatrix();
-  //rotateX(frameCount*radians(90) / 20);
-  //translate(0, -60);
-  //triangle(-30, 30, 0, -30, 30, 30);
-  //popMatrix();
   
   theta += 0.02;
   float x = theta;
@@ -136,6 +134,18 @@ void keyPressed(){
       personPosition += personPositionMoveValue;
     }
   }
+  
+  String message  = str( key );  // the message to send
+  String ip       = "localhost";  // the remote IP address
+  int port        = 5568;    // the destination port
+  
+  // formats the message for Pd
+  message = message+";\n";
+  
+  // this message takes the test packet data from the c++ OF program and sends it via UDP
+  //message = packet + ";\n";
+  // send the message
+  udp.send( message, ip, port );
 }
 
 void mousePressed() {
@@ -148,6 +158,26 @@ void drawOrigin() {
     sphereDetail(6);
     sphere(50);
   popMatrix();
+}
+
+/**
+ * To perform any action on datagram reception, you need to implement this 
+ * handler in your code. This method will be automatically called by the UDP 
+ * object each time he receive a nonnull message.
+ * By default, this method have just one argument (the received message as 
+ * byte[] array), but in addition, two arguments (representing in order the 
+ * sender IP address and his port) can be set like below.
+ */
+// void receive( byte[] data ) {       // <-- default handler
+void receive( byte[] data, String ip, int port ) {  // <-- extended handler
+
+  // get the "real" message =
+  // forget the ";\n" at the end <-- !!! only for a communication with Pd !!!
+  data = subset(data, 0, data.length-2);
+  String message = new String( data );
+  
+  // print the result
+  println( "receive: \""+message+"\" from "+ip+" on port "+port );
 }
 
 // This might be helpful for testing interactions later
