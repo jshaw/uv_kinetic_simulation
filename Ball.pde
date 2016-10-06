@@ -52,9 +52,9 @@ class Ball {
       float offsetMovement = (120 * 5 / 2) + (8 * 5) / 2;
       pushMatrix();
         translate(-(xoffset/2) + xpos, 0, zpos);
-        box(60, 10, 60);
+        //box(60, 10, 60);
         // The line height will be representative to the ball height
-        line(0, 0, 0, 0, offsetMovement + ypos, 0);
+        //line(0, 0, 0, 0, offsetMovement + ypos, 0);
       popMatrix();
       
       pushMatrix();
@@ -90,9 +90,9 @@ class Ball {
   }
   
   void updateColor(float r, float g, float b) {
-    red = map(r, -239, 242, 73, 222);
-    green = map(g, -239, 242, 160, 73);
-    blue = map(b, -239, 242, 222, 148);
+    red = r;
+    green = g;
+    blue = b;
   }
   
   void updateRandomColor() {
@@ -105,8 +105,20 @@ class Ball {
     
   }
   
-  void setYPos(float yUpdate) {
-    ypos = yUpdate;
+  void setSpeed(float speedUpdate) {
+    
+    
+    speed = speedUpdate;
   }
   
+  void setYPos(float yUpdate) {
+    if (yUpdate - ypos){
+      ypos = ypos - 10;
+    }
+    if (yUpdate > ypos){
+      ypos = ypos + 10;
+    }    
+    
+    ypos = yUpdate;
+  }
 }
