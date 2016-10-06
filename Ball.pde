@@ -8,6 +8,9 @@ class Ball {
   float rotateIncrease = 0.05;
   boolean inFrontOf = false;
   
+  float currentY = 0;
+  float previousY = 0;
+  
   float red, green, blue, movement, speed;
 
   Ball(float x, float y, float z, float xoff, float yoff, float zoff, float r, float g, float b, float m, float s) {
@@ -36,15 +39,7 @@ class Ball {
 
   // Method to update location
   void update(float personPosition, int i) {
-    float s = personPosition - 50;
-    float e = personPosition + 50;
-    if( -(yoffset/2) + ypos > s && -(yoffset/2) + ypos < e ){
-      //println("PERSON IS IN FRONT OF SENSOR: " + i);
-      inFrontOf = true;
-      rdeg = 1;
-    } else {
-      inFrontOf = false;
-    }
+  
   }
   
   // Method to display
@@ -106,6 +101,24 @@ class Ball {
   }
   
   void setYPos(float yUpdate) {
+    //currentY = yUpdate;
+    //if(previousY == currentY){
+    //  // the direction wouldn't have changed
+    //  if (currentY == 255){
+    //    if(ypos < 254){
+    //      ypos += 10;
+    //    }
+        
+    //  } else {
+    //    if(ypos > 0){
+    //      ypos -= 10;
+    //    }
+    //  }
+      
+    //}
+    
+    //previousY = currentY;
+    
     ypos = yUpdate;
   }
   
