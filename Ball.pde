@@ -40,18 +40,19 @@ class Ball {
   // Method to display
   void display() {
       float offsetMovement = (120 * 5 / 2) + (8 * 5) / 2;
-      pushMatrix();
-        translate(-(xoffset/2) + xpos, 0, zpos);
-        box(60, 10, 60);
-        // The line height will be representative to the ball height
-        line(0, 0, 0, 0, offsetMovement + ypos, 0);
-      popMatrix();
+      
+      //pushMatrix();
+      //  translate(-(xoffset/2) + xpos, 0, zpos);
+      //  box(60, 10, 60);
+      //   The line height will be representative to the ball height
+      //  line(0, 0, 0, 0, offsetMovement + ypos, 0);
+      //popMatrix();
       
       pushMatrix();
-        translate(-(xoffset/2) + xpos, offsetMovement + ypos, zpos);
+        translate(-(xoffset/2) + xpos, 100 + ypos*1.5, -(xoffset/2) + zpos);
         fill(red, green, blue);
         noStroke();
-        sphere((8 * 5) / 2);
+        sphere(25);
         fill(255, 255, 255);
         stroke(0);
       popMatrix();
@@ -66,9 +67,9 @@ class Ball {
   }
   
   void updateColor(float r, float g, float b) {
-    red = map(r, -239, 242, 73, 222);
-    green = map(g, -239, 242, 160, 73);
-    blue = map(b, -239, 242, 222, 148);
+    red = r;
+    green = g;
+    blue = b;
   }
   
   void updateRandomColor() {
@@ -81,26 +82,36 @@ class Ball {
     
   }
   
-  void setYPos(float yUpdate) {
-    //currentY = yUpdate;
-    //if(previousY == currentY){
-    //  // the direction wouldn't have changed
-    //  if (currentY == 255){
-    //    if(ypos < 254){
-    //      ypos += 10;
-    //    }
-        
-    //  } else {
-    //    if(ypos > 0){
-    //      ypos -= 10;
-    //    }
-    //  }
-      
-    //}
-    
-    //previousY = currentY;
-    
-    ypos = yUpdate;
+
+  void setSpeed(float speedUpdate) {
+    speed = speedUpdate;
   }
   
+  void setYPos(float yUpdate) {
+    
+    speedMod = (255-speed)/speedAdjust;
+
+    println(speedMod);
+    
+    if (yUpdate < ypos ){
+      if (ypos - yUpdate > speedMod){
+      ypos = ypos - speedMod;
+      }
+      else {
+        ypos = yUpdate;
+      }
+    }
+    
+    
+    if (yUpdate > ypos){
+      if (yUpdate - ypos > speedMod){
+      ypos = ypos + speedMod;
+      }
+      else {
+        ypos = yUpdate;
+      }
+    }
+    
+    //ypos = yUpdate;
+  }
 }
