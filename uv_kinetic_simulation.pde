@@ -20,7 +20,9 @@ UDP udp;  // define the UDP object
 // Ball 2d array
 Ball[][] balls;
 
-boolean USEPACKET = true;
+int[][][] parsedData;
+
+boolean USEPACKET = false;
 
 float ratio = 5.0;
 String packet = "001000004153432d45312e3137000000726e00000004c8bc8891a9064403a819a3f86f9fa0b27258000000024e415448414e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400005300000b720b02a1000000010201007373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373730000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
@@ -161,18 +163,33 @@ void draw() {
   float x = theta;
   
   // Switched to a 2d array for easy universe access
-  for(int i = 0; i < xgrid; i++){
+  float numToLoop = 0.0;
+  if(USEPACKET == true){
+    numToLoop = 2.0;
+  } else {
+    numToLoop = xgrid;
+  }
+  for(int i = 0; i < numToLoop; i++){
     for(int j = 0; j < zgrid; j++){
       Ball p = balls[i][j];
       p.run(personPosition, i);
       p.setDebug(debug);
       float ypos = sin(x) * amplitude;
-      p.setYPos(ypos);
-      p.updateRandomColor();
       
-      // the rpacket, gpacket, bpacket are taken from the DMX universe for the 
-      // appropirate row and column
-      //p.updateColor(rpacket, gpacket, bpacket);
+      if(USEPACKET == true){
+        p.setYPos(map(parsedData[i][j][0], 0, 255, -239, 242));
+      } else {
+        p.setYPos(ypos);
+      }
+      
+      if(USEPACKET == true){
+        // the rpacket, gpacket, bpacket are taken from the DMX universe for the 
+        // appropirate row and column
+        p.updateColor(parsedData[i][j][2], parsedData[i][j][3], parsedData[i][j][4]);
+      } else {
+        p.updateRandomColor();      
+      }
+      
       x += dx;
     }
   }
@@ -201,64 +218,24 @@ void gui() {
 void parsePacket() {
   println(OSCPacket);
   String[] universe;
-  
   String[] list = split(OSCPacket, ',');
-  println("list 0: " + list[0]);
+  //println("list 0: " + list[0]);
   
   universe = subset(list, 24);
   
+  //int[][][] parsedData;
+  parsedData = new int[2][22][5];
   
-  //String[][] parsedData;
-  int[][][] parsedData;
-  parsedData = new int[50][50][5];
-  
-  println("universe 0: " + universe[0]);
-  println("universe 1: " + universe[1]);
-  println("universe 2: " + universe[2]);
-  println("universe 3: " + universe[3]);
-  println("universe 4: " + universe[4]);
-  
-  println("universe.length: " + universe.length);
+  //println("universe 0: " + universe[0]);
+  //println("universe 1: " + universe[1]);
+  //println("universe 2: " + universe[2]);
+  //println("universe 3: " + universe[3]);
+  //println("universe 4: " + universe[4]);
+  //println("universe.length: " + universe.length);
   
   int oneD = 0;
   int twoD = 0;
   int threeD = 0;
-  
-  //for(int a = 0; a < universe.length; a += 23){
-  //  println("universe[a]: " + universe[a]);
-  //  for(int b = 0; b < (10 * 5); b++){
-  //    //println("universe[b]: " + universe[b]);
-  //  //for(int b = 0; b < (10 * 5); b++){
-  //    //println("String" + universe[b]);
-  //    for(int c = 0; c <= 4; c++){
-  //      //print(c + ": ");
-  //      //print(threeD + ": ");        
-  //      //println("String" + universe[c]);
-  //      parsedData[oneD][twoD][threeD] = int(universe[c]);
-  //      threeD++;
-  //    }
-  //    threeD = 0;
-      
-  //    print(oneD + ": ");        
-  //    print(twoD + ": ");
-  //    //println("parsedData[oneD][twoD]" + parsedData[oneD][twoD]);
-  //    println("parsedData[oneD][twoD]" + join(nf(parsedData[oneD][twoD], 0), "; "));
-  //    println("----------------------------");
-  //    twoD++;
-  //  }
-  //  twoD = 0;
-  //  oneD++;
-  //  println("=========================");
-  //  //parsedData[a][b][0];
-  //  //for(int b = 0; b <= 4; b += 4){
-  //    //println("universe[a][b]: " + universe[a][b]);
-  //    //parsedData[a][b][0]; 
-  //    //parsedData[a][b][1];
-  //    //parsedData[a][b][2];
-  //    //parsedData[a][b][3];
-  //    //parsedData[a][b][4];
-  //  //}
-  //}
   
   for(int a = 0; a < (22 * 5) * 2; a += (22 * 5)){
     //println("universe[a]: " + oneD);
@@ -289,7 +266,7 @@ void parsePacket() {
     //}
   }
   
-  noLoop();
+  //noLoop();
   
 }
 
