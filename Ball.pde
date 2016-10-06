@@ -61,7 +61,7 @@ class Ball {
         translate(-(xoffset/2) + xpos, offsetMovement + ypos, zpos);
         fill(red, green, blue);
         noStroke();
-        sphere((8 * 5) / 2);
+        sphere(25);
         fill(255, 255, 255);
         stroke(0);
       popMatrix();
@@ -112,13 +112,28 @@ class Ball {
   }
   
   void setYPos(float yUpdate) {
-    if (yUpdate - ypos){
-      ypos = ypos - 10;
-    }
-    if (yUpdate > ypos){
-      ypos = ypos + 10;
-    }    
     
-    ypos = yUpdate;
+    float speedMod = (255-speed)/speedAdjust;
+    
+    if (yUpdate < ypos ){
+      if (ypos - yUpdate > speedMod){
+      ypos = ypos - speedMod;
+      }
+      else {
+        ypos = yUpdate;
+      }
+    }
+    
+    
+    if (yUpdate > ypos){
+      if (yUpdate - ypos > speedMod){
+      ypos = ypos + speedMod;
+      }
+      else {
+        ypos = yUpdate;
+      }
+    }
+    
+    //ypos = yUpdate;
   }
 }

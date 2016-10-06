@@ -28,6 +28,7 @@ Ball[][] balls;
 int[][][] parsedData;
 
 boolean USEPACKET = true;
+float speedAdjust = 60.0;
 
 float ratio = 5.0;
 
@@ -134,7 +135,7 @@ void setup() {
 }
 
 void draw() {
-  background(255);   // Clear the screen with a black background
+  background(10);   // Clear the screen with a black background
   //translate(width/2,height/2);
   translate(width/2, -height/10);
   rectMode(CORNER);
@@ -144,19 +145,19 @@ void draw() {
   dx = (TWO_PI / period) * spacing;
 
   drawOrigin();
-  drawPerson(floorPos);
+  //drawPerson(floorPos);
 
   //if (USEPACKET == true) {
   //  parsePacket();
   //}
 
-  pushMatrix();
-  rotateX(radians(90));
-  translate(0, 0, 8);
-  rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
-  translate(0, 0, floorPos);
-  rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
-  popMatrix();
+  //pushMatrix();
+  //rotateX(radians(90));
+  //translate(0, 0, 8);
+  //rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
+  //translate(0, 0, floorPos);
+  //rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
+  //popMatrix();
 
   //theta += 0.02;
   theta += map(speed, 255, 0, 0, 0.1);
@@ -176,13 +177,13 @@ void draw() {
       p.setDebug(debug);
       float ypos = sin(x) * amplitude;
 
-      p.setSpeed(dmxData[i][1+j*5]);
-      p.setYPos(dmxData[i][j*5]);
+      p.setSpeed(dmxData[i][1+j*5]); //second DMX address
+      p.setYPos(dmxData[i][j*5]);    //first DMX address
 
       if (USEPACKET == true) {
         // the rpacket, gpacket, bpacket are taken from the DMX universe for the 
         // appropirate row and column
-        p.updateColor(dmxData[i][2+j*5], dmxData[i][3+j*5], dmxData[i][4+j*5]);
+        p.updateColor(dmxData[i][2+j*5], dmxData[i][3+j*5], dmxData[i][4+j*5]);   //Third, fourth and fifth DMX address
       } else {
         p.updateRandomColor();
       }
@@ -201,7 +202,7 @@ void draw() {
   fill(255);
   popMatrix();
 
-  gui();
+  //gui();
 }
 
 void gui() {
