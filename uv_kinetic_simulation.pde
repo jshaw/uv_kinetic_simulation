@@ -27,7 +27,7 @@ Ball[][] balls;
 
 int[][][] parsedData;
 
-boolean USEPACKET = true;
+boolean USEPACKET = false;
 float speedAdjust = 80.0;
 float speedMod;
 
@@ -66,36 +66,42 @@ void setup() {
   smooth(8);
   oscP5 = new OscP5(this, 50001);
 
-
   cp5 = new ControlP5(this);
+  
+  // create a toggle
+  cp5.addToggle("USEPACKET")
+     .setPosition(100,25)
+     .setSize(15, 15);
 
   // sine wave period
   cp5.addSlider("period")
-    .setPosition(100, 50)
+    .setPosition(100, 75)
     .setSize(100, 25)
     .setRange(1, 500)
     .setValue(320.36);
 
   // sine wave spacing
   cp5.addSlider("spacing")
-    .setPosition(100, 100)
+    .setPosition(100, 125)
     .setSize(100, 25)
     .setRange(0, 100);
 
   cp5.addSlider("speed")
-    .setPosition(100, 150)
+    .setPosition(100, 175)
     .setSize(100, 25)
     .setRange(255, 0)
     .setValue(200.0);
 
-  cp5.getController("period").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
-  cp5.getController("period").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
+  cp5.getController("USEPACKET").getCaptionLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(255);
+  
+  cp5.getController("period").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(255);
+  cp5.getController("period").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(255);
 
-  cp5.getController("spacing").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
-  cp5.getController("spacing").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
+  cp5.getController("spacing").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(255);
+  cp5.getController("spacing").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(255);
 
-  cp5.getController("speed").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
-  cp5.getController("speed").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
+  cp5.getController("speed").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(255);
+  cp5.getController("speed").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(255);
 
   cp5.setAutoDraw(false);
 
@@ -154,7 +160,12 @@ void draw() {
 
   pushMatrix();
   rotateX(radians(90));
-  translate(0, -900, 8);
+  if (USEPACKET == true) {
+    translate(0, -900, 8);
+  } else {
+    translate(0, 0, 8);
+  }
+  
   fill(0);
   rect(-xoffset/2 - 500, -500, zoffset + 1000, zoffset + 1000);
   //translate(0, 0, floorPos);
@@ -178,15 +189,17 @@ void draw() {
       p.run(i);
       p.setDebug(debug);
       float ypos = sin(x) * amplitude;
-
-      p.setSpeed(dmxData[i][1+j*5]); //second DMX address
-      p.setYPos(dmxData[i][j*5]);    //first DMX address
-
+      println("ypos: " + ypos);
+      p.updateUsePacket(USEPACKET);
       if (USEPACKET == true) {
+        p.setSpeed(dmxData[i][1+j*5]); //second DMX address
+        p.setYPos(dmxData[i][j*5]);    //first DMX address
         // the rpacket, gpacket, bpacket are taken from the DMX universe for the 
         // appropirate row and column
         p.updateColor(dmxData[i][2+j*5], dmxData[i][3+j*5], dmxData[i][4+j*5]);   //Third, fourth and fifth DMX address
       } else {
+        p.setSpeed(speed);
+        p.setYPos(ypos);
         p.updateRandomColor();
       }
 
@@ -204,7 +217,7 @@ void draw() {
   fill(255);
   popMatrix();
 
-  //gui();
+  gui();
 }
 
 void gui() {

@@ -5,6 +5,7 @@ class Ball {
   float xpos, ypos, zpos, xoffset, yoffset, zoffset;
   float currentY = 0;
   float previousY = 0;
+  boolean usePacket = true;
   
   float red, green, blue, movement, speed;
 
@@ -37,25 +38,46 @@ class Ball {
   
   }
   
+  // Method to update location
+  void updateUsePacket(boolean usePack) {
+    usePacket = usePack;
+  }
+  
   // Method to display
   void display() {
       float offsetMovement = (120 * 5 / 2) + (8 * 5) / 2;
       
-      //pushMatrix();
-      //  translate(-(xoffset/2) + xpos, 0, zpos);
-      //  box(60, 10, 60);
-      //   The line height will be representative to the ball height
-      //  line(0, 0, 0, 0, offsetMovement + ypos, 0);
-      //popMatrix();
-      
-      pushMatrix();
-        translate(-(xoffset/2) + xpos, 100 + ypos*1.5, -(xoffset/2) + zpos);
-        fill(red, green, blue);
-        noStroke();
-        sphere(25);
-        fill(255, 255, 255);
-        stroke(0);
-      popMatrix();
+      if(usePacket == true){
+        pushMatrix();
+          translate(-(xoffset/2) + xpos, 100 + ypos*1.5, -(xoffset/2) + zpos);
+          fill(red, green, blue);
+          noStroke();
+          sphere(25);
+          fill(255, 255, 255);
+          stroke(0);
+        popMatrix();
+      } else {
+        
+        pushMatrix();
+          fill(100);
+          noStroke();
+          translate(-(xoffset/2) + xpos, 0, zpos);
+          box(60, 10, 60);
+          stroke(1);
+          //The line height will be representative to the ball height
+          line(0, 0, 0, 0, offsetMovement + ypos, 0);
+        popMatrix();
+        
+        pushMatrix();
+          //translate(-(xoffset/2) + xpos, 100 + ypos*1.5, -(xoffset/2) + zpos);
+          translate(-(xoffset/2) + xpos, offsetMovement + ypos, zpos);
+          fill(red, green, blue);
+          noStroke();
+          sphere(25);
+          fill(255, 255, 255);
+          stroke(0);
+        popMatrix(); 
+      }
   }
   
   // Sets the default colors randomly
@@ -88,30 +110,32 @@ class Ball {
   }
   
   void setYPos(float yUpdate) {
-    
-    speedMod = (255-speed)/speedAdjust;
+    if(usePacket == true){
+      speedMod = (255-speed)/speedAdjust;
+  
+      //println(speedMod);
+      
+      if (yUpdate < ypos ){
+        if (ypos - yUpdate > speedMod){
+        ypos = ypos - speedMod;
+        }
+        else {
+          ypos = yUpdate;
+        }
+      }
+      
+      
+      if (yUpdate > ypos){
+        if (yUpdate - ypos > speedMod){
+        ypos = ypos + speedMod;
+        }
+        else {
+          ypos = yUpdate;
+        }
+      }
+    } else {
+      ypos = yUpdate;    
+    }
 
-    println(speedMod);
-    
-    if (yUpdate < ypos ){
-      if (ypos - yUpdate > speedMod){
-      ypos = ypos - speedMod;
-      }
-      else {
-        ypos = yUpdate;
-      }
-    }
-    
-    
-    if (yUpdate > ypos){
-      if (yUpdate - ypos > speedMod){
-      ypos = ypos + speedMod;
-      }
-      else {
-        ypos = yUpdate;
-      }
-    }
-    
-    //ypos = yUpdate;
   }
 }
