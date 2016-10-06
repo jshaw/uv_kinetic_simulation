@@ -34,7 +34,6 @@ float ygrid = 0;
 float zgrid = 22;
 float spacing = 16.0 * ratio;
 float personPosition = 0.0;
-float personPositionMoveValue = 5.0;
 
 float speed = 200.0;
 
@@ -53,8 +52,8 @@ float period = 320.36;
 float dx;  // Value for incrementing X, a function of period and xspacing
 
 void setup() {
-  size(800, 600, P3D);
-  //size(1280, 1000, P3D);
+  //size(800, 600, P3D);
+  size(1280, 1000, P3D);
   rectMode(CENTER);
   stroke(0);
   frameRate(30);
@@ -172,7 +171,7 @@ void draw() {
   for(int i = 0; i < numToLoop; i++){
     for(int j = 0; j < zgrid; j++){
       Ball p = balls[i][j];
-      p.run(personPosition, i);
+      p.run(i);
       p.setDebug(debug);
       float ypos = sin(x) * amplitude;
       
@@ -219,11 +218,8 @@ void parsePacket() {
   println(OSCPacket);
   String[] universe;
   String[] list = split(OSCPacket, ',');
-  //println("list 0: " + list[0]);
   
   universe = subset(list, 24);
-  
-  //int[][][] parsedData;
   parsedData = new int[2][22][5];
   
   //println("universe 0: " + universe[0]);
@@ -255,19 +251,7 @@ void parsePacket() {
     twoD = 0;
     oneD++;
     println("=========================");
-    //parsedData[a][b][0];
-    //for(int b = 0; b <= 4; b += 4){
-      //println("universe[a][b]: " + universe[a][b]);
-      //parsedData[a][b][0]; 
-      //parsedData[a][b][1];
-      //parsedData[a][b][2];
-      //parsedData[a][b][3];
-      //parsedData[a][b][4];
-    //}
   }
-  
-  //noLoop();
-  
 }
 
 void keyPressed(){
@@ -275,12 +259,10 @@ void keyPressed(){
   if (key == CODED) {
     if (keyCode == LEFT) {
       // Do up up stuff here
-      personPosition -= personPositionMoveValue;
       println("LEFT");
     } else if (keyCode == RIGHT) {
       // Do down stuff here
       println("RIGHT");
-      personPosition += personPositionMoveValue;
     }
   }
   

@@ -1,13 +1,8 @@
 
-// "Sensor" class for the observer
+// "Light Ball" class for the object installation
 
 class Ball {
   float xpos, ypos, zpos, xoffset, yoffset, zoffset;
-  float rdeg = 1;
-  int rotationDirection = 0;
-  float rotateIncrease = 0.05;
-  boolean inFrontOf = false;
-  
   float currentY = 0;
   float previousY = 0;
   
@@ -32,13 +27,13 @@ class Ball {
     setColor();
   }
 
-  void run(float personPosition, int i) {
-    update(personPosition, i);
+  void run(int i) {
+    update(i);
     display();
   }
 
   // Method to update location
-  void update(float personPosition, int i) {
+  void update(int i) {
   
   }
   
@@ -60,20 +55,6 @@ class Ball {
         fill(255, 255, 255);
         stroke(0);
       popMatrix();
-      
-      if(inFrontOf == false){
-        if(rdeg <= -1.2){
-          rotationDirection = 0;
-        } else if(rdeg >= 1) {
-          rotationDirection = 1;
-        }
-        
-        //if(rotationDirection == 1){
-        //  rdeg -= rotateIncrease;
-        //} else {
-        //  rdeg += rotateIncrease;
-        //}   
-      }
   }
   
   // Sets the default colors randomly
