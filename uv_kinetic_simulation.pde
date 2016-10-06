@@ -28,7 +28,9 @@ Ball[][] balls;
 int[][][] parsedData;
 
 boolean USEPACKET = true;
-float speedAdjust = 60.0;
+float speedAdjust = 80.0;
+float speedMod;
+
 
 float ratio = 5.0;
 
@@ -135,7 +137,7 @@ void setup() {
 }
 
 void draw() {
-  background(10);   // Clear the screen with a black background
+  background(40);   // Clear the screen with a black background
   //translate(width/2,height/2);
   translate(width/2, -height/10);
   rectMode(CORNER);
@@ -151,13 +153,14 @@ void draw() {
   //  parsePacket();
   //}
 
-  //pushMatrix();
-  //rotateX(radians(90));
-  //translate(0, 0, 8);
-  //rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
+  pushMatrix();
+  rotateX(radians(90));
+  translate(0, -900, 8);
+  fill(0);
+  rect(-xoffset/2 - 500, -500, zoffset + 1000, zoffset + 1000);
   //translate(0, 0, floorPos);
   //rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
-  //popMatrix();
+  popMatrix();
 
   //theta += 0.02;
   theta += map(speed, 255, 0, 0, 0.1);
@@ -213,60 +216,6 @@ void gui() {
   hint(ENABLE_DEPTH_TEST);
 }
 
-//void parsePacket() {
-//  println(OSCPacket);
-//  String[] universe;
-//  String[] list = split(OSCPacket, ',');
-//  //println("list 0: " + list[0]);
-
-//  universe = subset(list, 24);
-
-//  //int[][][] parsedData;
-//  parsedData = new int[2][22][5];
-
-//  //println("universe 0: " + universe[0]);
-//  //println("universe 1: " + universe[1]);
-//  //println("universe 2: " + universe[2]);
-//  //println("universe 3: " + universe[3]);
-//  //println("universe 4: " + universe[4]);
-//  //println("universe.length: " + universe.length);
-
-//  int oneD = 0;
-//  int twoD = 0;
-//  int threeD = 0;
-
-//  for (int a = 0; a < (22 * 5) * 2; a += (22 * 5)) {
-//    //println("universe[a]: " + oneD);
-//    for (int b = 0; b < (22 * 5); b += 5) {
-//      //println("two[a]: " + twoD);
-//      for (int c = 0; c <= 4; c++) {
-//        parsedData[oneD][twoD][threeD] = int(universe[c]);
-//        threeD++;
-//      }
-//      threeD = 0;
-
-//      print(oneD + ": ");        
-//      print(twoD + ": ");
-//      println("parsedData[oneD][twoD]" + join(nf(parsedData[oneD][twoD], 0), "; "));
-//      twoD++;
-//    }
-//    twoD = 0;
-//    oneD++;
-//    println("=========================");
-//    //parsedData[a][b][0];
-//    //for(int b = 0; b <= 4; b += 4){
-//    //println("universe[a][b]: " + universe[a][b]);
-//    //parsedData[a][b][0]; 
-//    //parsedData[a][b][1];
-//    //parsedData[a][b][2];
-//    //parsedData[a][b][3];
-//    //parsedData[a][b][4];
-//    //}
-//  }
-
-//  //noLoop();
-//}
-
 void keyPressed() {
   println("---");
   if (key == CODED) {
@@ -284,14 +233,14 @@ void keyPressed() {
 
 }
 
-void mousePressed() {
-  debug = !debug;
-}
+//void mousePressed() {
+//  debug = !debug;
+//}
 
 void drawOrigin() {
   pushMatrix();
   translate(0, 0, -75);
-  sphereDetail(6);
+  sphereDetail(10);
   sphere(50);
   popMatrix();
 }
@@ -326,6 +275,11 @@ void drawPerson(float floorPos) {
   fill(255);
 }
 
+
+void mousePressed(){
+  println("speedMod: " + speedMod);
+
+}
 
 void oscEvent(OscMessage theOscMessage) {
   /* check if theOscMessage has the address pattern we are looking for. */

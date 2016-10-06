@@ -50,15 +50,16 @@ class Ball {
   // Method to display
   void display() {
       float offsetMovement = (120 * 5 / 2) + (8 * 5) / 2;
-      pushMatrix();
-        translate(-(xoffset/2) + xpos, 0, zpos);
-        //box(60, 10, 60);
-        // The line height will be representative to the ball height
-        //line(0, 0, 0, 0, offsetMovement + ypos, 0);
-      popMatrix();
+      
+      //pushMatrix();
+      //  translate(-(xoffset/2) + xpos, 0, zpos);
+      //  box(60, 10, 60);
+      //   The line height will be representative to the ball height
+      //  line(0, 0, 0, 0, offsetMovement + ypos, 0);
+      //popMatrix();
       
       pushMatrix();
-        translate(-(xoffset/2) + xpos, offsetMovement + ypos, zpos);
+        translate(-(xoffset/2) + xpos, 100 + ypos*1.5, -(xoffset/2) + zpos);
         fill(red, green, blue);
         noStroke();
         sphere(25);
@@ -113,7 +114,9 @@ class Ball {
   
   void setYPos(float yUpdate) {
     
-    float speedMod = (255-speed)/speedAdjust;
+    speedMod = (255-speed)/speedAdjust;
+
+    println(speedMod);
     
     if (yUpdate < ypos ){
       if (ypos - yUpdate > speedMod){
