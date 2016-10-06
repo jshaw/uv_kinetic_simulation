@@ -7,9 +7,14 @@ PeasyCam cam;
 import controlP5.*;
 ControlP5 cp5;
 
-// import UDP library
-import hypermedia.net.*;
-UDP udp;  // define the UDP object
+import oscP5.*;
+import netP5.*;
+
+OscP5 oscP5;
+NetAddress myRemoteLocation;
+
+int[][] rawData = new int[11][540];
+int[][] dmxData = new int[22][110];
 
 // Could be good use for adjusting for tests
 // http://codec.trembl.org/614/
@@ -22,11 +27,12 @@ Ball[][] balls;
 
 int[][][] parsedData;
 
-boolean USEPACKET = false;
+boolean USEPACKET = true;
+float speedAdjust = 80.0;
+float speedMod;
+
 
 float ratio = 5.0;
-String packet = "001000004153432d45312e3137000000726e00000004c8bc8891a9064403a819a3f86f9fa0b27258000000024e415448414e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400005300000b720b02a1000000010201007373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373730000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-String OSCPacket = "47,100,109,120,47,117,110,105,118,101,114,115,101,47,49,0,44,98,0,0,0,0,2,0,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,200,100,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,";
 
 boolean debug = true;
 float xgrid = 22;
@@ -58,61 +64,59 @@ void setup() {
   stroke(0);
   frameRate(30);
   smooth(8);
-  
+  oscP5 = new OscP5(this, 50001);
+
+
   cp5 = new ControlP5(this);
-  
+
   // sine wave period
   cp5.addSlider("period")
-   .setPosition(100, 50)
-   .setSize(100, 25)
-   .setRange(1, 500)
-   .setValue(320.36);
-   
+    .setPosition(100, 50)
+    .setSize(100, 25)
+    .setRange(1, 500)
+    .setValue(320.36);
+
   // sine wave spacing
   cp5.addSlider("spacing")
-   .setPosition(100, 100)
-   .setSize(100, 25)
-   .setRange(0,100);
-   
+    .setPosition(100, 100)
+    .setSize(100, 25)
+    .setRange(0, 100);
+
   cp5.addSlider("speed")
-   .setPosition(100, 150)
-   .setSize(100, 25)
-   .setRange(255,0)
-   .setValue(200.0);
-   
+    .setPosition(100, 150)
+    .setSize(100, 25)
+    .setRange(255, 0)
+    .setValue(200.0);
+
   cp5.getController("period").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
   cp5.getController("period").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
-  
+
   cp5.getController("spacing").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
   cp5.getController("spacing").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
-  
+
   cp5.getController("speed").getValueLabel().align(ControlP5.LEFT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
   cp5.getController("speed").getCaptionLabel().align(ControlP5.RIGHT, ControlP5.BOTTOM_OUTSIDE).setPaddingX(0).setColor(0);
-   
+
   cp5.setAutoDraw(false);
-  
+
   // init the balls array
   balls = new Ball[(int)xgrid][(int)zgrid];
-  
+
   // create a new datagram connection on port 6000
   // and wait for incomming message
-  udp = new UDP( this, 5568 );
-  // <-- printout the connection activity
-  udp.log( true );     
-  udp.listen( true );
-  
+
   cam = new PeasyCam(this, width/2, height/2 + 200, 0, 4000);
   cam.setMinimumDistance(50);
   cam.setMaximumDistance(4000);
-  
+
   dx = (TWO_PI / period) * spacing;
-  
+
   float ypos = 0;
   float r = 0, g = 0, b = 0, m = 0, s = 0;
-  
-  for(int x = 0; x < xgrid; x++){
+
+  for (int x = 0; x < xgrid; x++) {
     float xpos = x * spacing;
-    for(int z = 0; z < zgrid; z++){
+    for (int z = 0; z < zgrid; z++) {
       float zpos = z * spacing;
       //println("xpos: " + xpos);
       //println("ypos: " + ypos);
@@ -121,7 +125,7 @@ void setup() {
       //println("yoffset: " + yoffset);
       //println("zoffset: " + zoffset);
       //println("=============");
-      
+
       // I'm storying the ball objects into a 2d array
       // this is done for easy access to each of the the 22 universes.
       // This is done via the universe number from the UDP packet
@@ -129,81 +133,78 @@ void setup() {
       balls[x][z] = new Ball(xpos, ypos, zpos, xoffset, yoffset, zoffset, r, g, b, m, s);
     }
   }
-  
 }
 
 void draw() {
-  background(255);   // Clear the screen with a black background
+  background(40);   // Clear the screen with a black background
   //translate(width/2,height/2);
   translate(width/2, -height/10);
   rectMode(CORNER);
-  
+
   float floorPos = -(120.0 * ratio * 1.8);
-  
+
   dx = (TWO_PI / period) * spacing;
-  
+
   drawOrigin();
-  drawPerson(floorPos);
-  
-  if(USEPACKET == true){
-    parsePacket();
-  }
-  
+  //drawPerson(floorPos);
+
+  //if (USEPACKET == true) {
+  //  parsePacket();
+  //}
+
   pushMatrix();
-    rotateX(radians(90));
-    translate(0, 0, 8);
-    rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
-    translate(0, 0, floorPos);
-    rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
+  rotateX(radians(90));
+  translate(0, -900, 8);
+  fill(0);
+  rect(-xoffset/2 - 500, -500, zoffset + 1000, zoffset + 1000);
+  //translate(0, 0, floorPos);
+  //rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
   popMatrix();
-  
+
   //theta += 0.02;
   theta += map(speed, 255, 0, 0, 0.1);
   float x = theta;
-  
+
   // Switched to a 2d array for easy universe access
   float numToLoop = 0.0;
-  if(USEPACKET == true){
-    numToLoop = 2.0;
+  if (USEPACKET == true) {
+    numToLoop = xgrid;
   } else {
     numToLoop = xgrid;
   }
-  for(int i = 0; i < numToLoop; i++){
-    for(int j = 0; j < zgrid; j++){
+  for (int i = 0; i < numToLoop; i++) {
+    for (int j = 0; j < zgrid; j++) {
       Ball p = balls[i][j];
       p.run(i);
       p.setDebug(debug);
       float ypos = sin(x) * amplitude;
-      
-      if(USEPACKET == true){
-        p.setYPos(map(parsedData[i][j][0], 0, 255, -239, 242));
-      } else {
-        p.setYPos(ypos);
-      }
-      
-      if(USEPACKET == true){
+
+      p.setSpeed(dmxData[i][1+j*5]); //second DMX address
+      p.setYPos(dmxData[i][j*5]);    //first DMX address
+
+      if (USEPACKET == true) {
         // the rpacket, gpacket, bpacket are taken from the DMX universe for the 
         // appropirate row and column
-        p.updateColor(parsedData[i][j][2], parsedData[i][j][3], parsedData[i][j][4]);
+        p.updateColor(dmxData[i][2+j*5], dmxData[i][3+j*5], dmxData[i][4+j*5]);   //Third, fourth and fifth DMX address
       } else {
-        p.updateRandomColor();      
+        p.updateRandomColor();
       }
-      
+
       x += dx;
     }
   }
-  
+
   pushMatrix();
-    textSize(32);
-    fill(0);
-    text("mouseX", -width/2 - 800, -height/2 + 280);
-    text(mouseX, -width/2 - 600, -height/2 + 280);
-    text("mouseY", -width/2 - 800, -height/2 + 320);
-    text(mouseY, -width/2 - 600, -height/2 + 320);
-    fill(255);
+  textSize(32);
+  fill(0);
+  text("mouseX", -width/2 - 800, -height/2 + 280);
+  text(mouseX, -width/2 - 600, -height/2 + 280);
+  text("mouseY", -width/2 - 800, -height/2 + 320);
+  text(mouseY, -width/2 - 600, -height/2 + 320);
+  fill(255);
   popMatrix();
-  
-  gui();
+
+  //gui();
 }
 
 void gui() {
@@ -214,47 +215,7 @@ void gui() {
   hint(ENABLE_DEPTH_TEST);
 }
 
-void parsePacket() {
-  println(OSCPacket);
-  String[] universe;
-  String[] list = split(OSCPacket, ',');
-  
-  universe = subset(list, 24);
-  parsedData = new int[2][22][5];
-  
-  //println("universe 0: " + universe[0]);
-  //println("universe 1: " + universe[1]);
-  //println("universe 2: " + universe[2]);
-  //println("universe 3: " + universe[3]);
-  //println("universe 4: " + universe[4]);
-  //println("universe.length: " + universe.length);
-  
-  int oneD = 0;
-  int twoD = 0;
-  int threeD = 0;
-  
-  for(int a = 0; a < (22 * 5) * 2; a += (22 * 5)){
-    //println("universe[a]: " + oneD);
-      for(int b = 0; b < (22 * 5); b += 5){
-      //println("two[a]: " + twoD);
-      for(int c = 0; c <= 4; c++){
-        parsedData[oneD][twoD][threeD] = int(universe[c]);
-        threeD++;
-      }
-      threeD = 0;
-      
-      print(oneD + ": ");        
-      print(twoD + ": ");
-      println("parsedData[oneD][twoD]" + join(nf(parsedData[oneD][twoD], 0), "; "));
-      twoD++;
-    }
-    twoD = 0;
-    oneD++;
-    println("=========================");
-  }
-}
-
-void keyPressed(){
+void keyPressed() {
   println("---");
   if (key == CODED) {
     if (keyCode == LEFT) {
@@ -265,29 +226,19 @@ void keyPressed(){
       println("RIGHT");
     }
   }
-  
-  String message  = str( key );  // the message to send
-  String ip       = "localhost";  // the remote IP address
-  int port        = 5568;    // the destination port
-  
-  // formats the message for Pd
-  message = message+";\n";
-  
-  // this message takes the test packet data from the c++ OF program and sends it via UDP
-  //message = packet + ";\n";
-  // send the message
-  udp.send( message, ip, port );
+
+
 }
 
-void mousePressed() {
-  debug = !debug;
-}
+//void mousePressed() {
+//  debug = !debug;
+//}
 
 void drawOrigin() {
   pushMatrix();
-    translate(0,0, -75);
-    sphereDetail(6);
-    sphere(50);
+  translate(0, 0, -75);
+  sphereDetail(10);
+  sphere(50);
   popMatrix();
 }
 
@@ -306,7 +257,7 @@ void receive( byte[] data, String ip, int port ) {  // <-- extended handler
   // forget the ";\n" at the end <-- !!! only for a communication with Pd !!!
   data = subset(data, 0, data.length-2);
   String message = new String( data );
-  
+
   // print the result
   println( "receive: \""+message+"\" from "+ip+" on port "+port );
 }
@@ -319,4 +270,88 @@ void drawPerson(float floorPos) {
   box(100, 300, 20);
   popMatrix();
   fill(255);
+}
+
+
+void mousePressed(){
+  println("speedMod: " + speedMod);
+
+}
+
+void oscEvent(OscMessage theOscMessage) {
+  /* check if theOscMessage has the address pattern we are looking for. */
+
+  if (theOscMessage.checkAddrPattern("/dmx/universe/1")==true) {
+    rawData[0] =  int(theOscMessage.getBytes()); 
+    // remap the DMX data
+    dmxData[0] = subset(rawData[0], 24, 110);
+    dmxData[1] = subset(rawData[0], 134, 110);
+    //for (int i = 0; i < dmx1.length; i ++) {
+    //  print(dmx1[i] + ",");
+    //}
+    //println
+    //println("UNIVERSE 1 RECEIVED");
+  } 
+  if (theOscMessage.checkAddrPattern("/dmx/universe/2")==true) {
+    rawData[1] =  int(theOscMessage.getBytes());  
+    dmxData[2] = subset(rawData[1], 24, 110);
+    dmxData[3] = subset(rawData[1], 134, 110);
+    //println("UNIVERSE 2 RECEIVED");
+  }
+  if (theOscMessage.checkAddrPattern("/dmx/universe/3")==true) {
+    rawData[2] =  int(theOscMessage.getBytes());  
+    dmxData[4] = subset(rawData[2], 24, 110);
+    dmxData[5] = subset(rawData[2], 134, 110);
+    //println("UNIVERSE 3 RECEIVED");
+  }
+  if (theOscMessage.checkAddrPattern("/dmx/universe/4")==true) {
+    rawData[3] =  int(theOscMessage.getBytes());  
+    dmxData[6] = subset(rawData[3], 24, 110);
+    dmxData[7] = subset(rawData[3], 134, 110);
+    //println("UNIVERSE 4 RECEIVED");
+  }
+  if (theOscMessage.checkAddrPattern("/dmx/universe/5")==true) {
+    rawData[4] =  int(theOscMessage.getBytes());  
+    dmxData[8] = subset(rawData[4], 24, 110);
+    dmxData[9] = subset(rawData[4], 134, 110);
+    //println("UNIVERSE 5 RECEIVED");
+  }
+  if (theOscMessage.checkAddrPattern("/dmx/universe/6")==true) {
+    rawData[5] =  int(theOscMessage.getBytes());  
+    dmxData[10] = subset(rawData[5], 24, 110);
+    dmxData[11] = subset(rawData[5], 134, 110);
+    //println("UNIVERSE 6 RECEIVED");
+  }
+  if (theOscMessage.checkAddrPattern("/dmx/universe/7")==true) {
+    rawData[6] =  int(theOscMessage.getBytes());  
+    dmxData[12] = subset(rawData[6], 24, 110);
+    dmxData[13] = subset(rawData[6], 134, 110);
+    //println("UNIVERSE 7 RECEIVED");
+  }
+  if (theOscMessage.checkAddrPattern("/dmx/universe/8")==true) {
+    rawData[7] =  int(theOscMessage.getBytes());  
+    dmxData[14] = subset(rawData[7], 24, 110);
+    dmxData[15] = subset(rawData[7], 134, 110);
+    //println("UNIVERSE 8 RECEIVED");
+  }
+  if (theOscMessage.checkAddrPattern("/dmx/universe/9")==true) {
+    rawData[8] =  int(theOscMessage.getBytes());  
+    dmxData[16] = subset(rawData[8], 24, 110);
+    dmxData[17] = subset(rawData[8], 134, 110);
+    //println("UNIVERSE 9 RECEIVED");
+  }
+  if (theOscMessage.checkAddrPattern("/dmx/universe/10")==true) {
+    rawData[9] =  int(theOscMessage.getBytes());  
+    dmxData[18] = subset(rawData[9], 28, 110);
+    dmxData[19] = subset(rawData[9], 138, 110);
+    //println("UNIVERSE 10 RECEIVED");
+  }
+  if (theOscMessage.checkAddrPattern("/dmx/universe/11")==true) {
+    rawData[10] =  int(theOscMessage.getBytes());  
+    dmxData[20] = subset(rawData[10], 28, 110);
+    dmxData[21] = subset(rawData[10], 138, 110);
+    //println("UNIVERSE 11 RECEIVED");
+  }
+
+
 }
