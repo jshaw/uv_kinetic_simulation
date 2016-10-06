@@ -20,7 +20,7 @@ UDP udp;  // define the UDP object
 // Ball 2d array
 Ball[][] balls;
 
-boolean USEPACKET = false;
+boolean USEPACKET = true;
 
 float ratio = 5.0;
 String packet = "001000004153432d45312e3137000000726e00000004c8bc8891a9064403a819a3f86f9fa0b27258000000024e415448414e000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000006400005300000b720b02a1000000010201007373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373737373730000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
@@ -51,8 +51,8 @@ float period = 320.36;
 float dx;  // Value for incrementing X, a function of period and xspacing
 
 void setup() {
-  //size(800, 600, P3D);
-  size(1280, 1000, P3D);
+  size(800, 600, P3D);
+  //size(1280, 1000, P3D);
   rectMode(CENTER);
   stroke(0);
   frameRate(30);
@@ -200,6 +200,97 @@ void gui() {
 
 void parsePacket() {
   println(OSCPacket);
+  String[] universe;
+  
+  String[] list = split(OSCPacket, ',');
+  println("list 0: " + list[0]);
+  
+  universe = subset(list, 24);
+  
+  
+  //String[][] parsedData;
+  int[][][] parsedData;
+  parsedData = new int[50][50][5];
+  
+  println("universe 0: " + universe[0]);
+  println("universe 1: " + universe[1]);
+  println("universe 2: " + universe[2]);
+  println("universe 3: " + universe[3]);
+  println("universe 4: " + universe[4]);
+  
+  println("universe.length: " + universe.length);
+  
+  int oneD = 0;
+  int twoD = 0;
+  int threeD = 0;
+  
+  //for(int a = 0; a < universe.length; a += 23){
+  //  println("universe[a]: " + universe[a]);
+  //  for(int b = 0; b < (10 * 5); b++){
+  //    //println("universe[b]: " + universe[b]);
+  //  //for(int b = 0; b < (10 * 5); b++){
+  //    //println("String" + universe[b]);
+  //    for(int c = 0; c <= 4; c++){
+  //      //print(c + ": ");
+  //      //print(threeD + ": ");        
+  //      //println("String" + universe[c]);
+  //      parsedData[oneD][twoD][threeD] = int(universe[c]);
+  //      threeD++;
+  //    }
+  //    threeD = 0;
+      
+  //    print(oneD + ": ");        
+  //    print(twoD + ": ");
+  //    //println("parsedData[oneD][twoD]" + parsedData[oneD][twoD]);
+  //    println("parsedData[oneD][twoD]" + join(nf(parsedData[oneD][twoD], 0), "; "));
+  //    println("----------------------------");
+  //    twoD++;
+  //  }
+  //  twoD = 0;
+  //  oneD++;
+  //  println("=========================");
+  //  //parsedData[a][b][0];
+  //  //for(int b = 0; b <= 4; b += 4){
+  //    //println("universe[a][b]: " + universe[a][b]);
+  //    //parsedData[a][b][0]; 
+  //    //parsedData[a][b][1];
+  //    //parsedData[a][b][2];
+  //    //parsedData[a][b][3];
+  //    //parsedData[a][b][4];
+  //  //}
+  //}
+  
+  for(int a = 0; a < (22 * 5) * 2; a += (22 * 5)){
+    //println("universe[a]: " + oneD);
+      for(int b = 0; b < (22 * 5); b += 5){
+      //println("two[a]: " + twoD);
+      for(int c = 0; c <= 4; c++){
+        parsedData[oneD][twoD][threeD] = int(universe[c]);
+        threeD++;
+      }
+      threeD = 0;
+      
+      print(oneD + ": ");        
+      print(twoD + ": ");
+      println("parsedData[oneD][twoD]" + join(nf(parsedData[oneD][twoD], 0), "; "));
+      twoD++;
+    }
+    twoD = 0;
+    oneD++;
+    println("=========================");
+    //parsedData[a][b][0];
+    //for(int b = 0; b <= 4; b += 4){
+      //println("universe[a][b]: " + universe[a][b]);
+      //parsedData[a][b][0]; 
+      //parsedData[a][b][1];
+      //parsedData[a][b][2];
+      //parsedData[a][b][3];
+      //parsedData[a][b][4];
+    //}
+  }
+  
+  noLoop();
+  
 }
 
 void keyPressed(){
