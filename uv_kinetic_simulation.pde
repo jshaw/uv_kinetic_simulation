@@ -13,6 +13,10 @@ import netP5.*;
 OscP5 oscP5;
 NetAddress myRemoteLocation;
 
+boolean USEPACKET = false;
+boolean debug = true;
+boolean DRAWFLOOR = false;
+
 int[][] rawData = new int[11][540];
 int[][] dmxData = new int[22][110];
 
@@ -24,17 +28,11 @@ int[][] dmxData = new int[22][110];
 
 // Ball 2d array
 Ball[][] balls;
-
 int[][][] parsedData;
-
-boolean USEPACKET = false;
 float speedAdjust = 80.0;
 float speedMod;
 
-
 float ratio = 5.0;
-
-boolean debug = true;
 float xgrid = 22;
 float ygrid = 0;
 float zgrid = 22;
@@ -49,16 +47,21 @@ float xoffset = spacing * xgrid;
 float yoffset = spacing * ygrid;
 float zoffset = spacing * zgrid;
 
-float theta = 0.0;  // Start angle at 0
-float amplitude = (120.0 * ratio) / 2;  // Height of wave
+// Start angle at 0
+float theta = 0.0;
+
+// Height of wave
+float amplitude = (120.0 * ratio) / 2;
+
 // How many pixels before the wave repeats
-//float period = 200.0;
-//float period = 230;
 float period = 320.36;
-float dx;  // Value for incrementing X, a function of period and xspacing
+
+// Value for incrementing X, a function of period and xspacing
+float dx;
+
+float floorPos = 0;
 
 void setup() {
-  //size(800, 600, P3D);
   size(1280, 1000, P3D);
   rectMode(CENTER);
   stroke(0);
@@ -119,11 +122,17 @@ void setup() {
 
   float ypos = 0;
   float r = 0, g = 0, b = 0, m = 0, s = 0;
+  
+  if(DRAWFLOOR == true){
+    floorPos = -(120.0 * ratio * 1.8);
+  }
 
   for (int x = 0; x < xgrid; x++) {
     float xpos = x * spacing;
     for (int z = 0; z < zgrid; z++) {
       float zpos = z * spacing;
+      
+      // Debugging
       //println("xpos: " + xpos);
       //println("ypos: " + ypos);
       //println("zpos: " + zpos);
@@ -147,29 +156,28 @@ void draw() {
   translate(width/2, -height/10);
   rectMode(CORNER);
 
-  float floorPos = -(120.0 * ratio * 1.8);
-
   dx = (TWO_PI / period) * spacing;
 
   drawOrigin();
-  //drawPerson(floorPos);
-
-  //if (USEPACKET == true) {
-  //  parsePacket();
-  //}
+  
+  if(DRAWFLOOR == true){
+    drawPerson(floorPos);
+  }
 
   pushMatrix();
-  rotateX(radians(90));
-  if (USEPACKET == true) {
-    translate(0, -900, 8);
-  } else {
-    translate(0, 0, 8);
-  }
-  
-  fill(0);
-  rect(-xoffset/2 - 500, -500, zoffset + 1000, zoffset + 1000);
-  //translate(0, 0, floorPos);
-  //rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
+    rotateX(radians(90));
+    if (USEPACKET == true) {
+      translate(0, -900, 8);
+    } else {
+      translate(0, 0, 8);
+    }
+    
+    fill(0);
+    rect(-xoffset/2 - 500, -500, zoffset + 1000, zoffset + 1000);
+    if(DRAWFLOOR == true){
+      translate(0, 0, floorPos);
+      rect(-xoffset/2 - 75, -75, zoffset + 75, zoffset + 75);
+    }
   popMatrix();
 
   //theta += 0.02;
@@ -189,7 +197,9 @@ void draw() {
       p.run(i);
       p.setDebug(debug);
       float ypos = sin(x) * amplitude;
-      println("ypos: " + ypos);
+      
+      //println("ypos: " + ypos);
+      
       p.updateUsePacket(USEPACKET);
       if (USEPACKET == true) {
         p.setSpeed(dmxData[i][1+j*5]); //second DMX address
@@ -207,16 +217,7 @@ void draw() {
     }
   }
 
-  pushMatrix();
-  textSize(32);
-  fill(0);
-  text("mouseX", -width/2 - 800, -height/2 + 280);
-  text(mouseX, -width/2 - 600, -height/2 + 280);
-  text("mouseY", -width/2 - 800, -height/2 + 320);
-  text(mouseY, -width/2 - 600, -height/2 + 320);
-  fill(255);
-  popMatrix();
-
+  drawMousePos();
   gui();
 }
 
@@ -238,20 +239,28 @@ void keyPressed() {
       // Do down stuff here
       println("RIGHT");
     }
+  } else if (key == 'd'){
+    debug = !debug;
   }
-
-
 }
-
-//void mousePressed() {
-//  debug = !debug;
-//}
 
 void drawOrigin() {
   pushMatrix();
-  translate(0, 0, -75);
-  sphereDetail(10);
-  sphere(50);
+    translate(0, 0, -75);
+    sphereDetail(10);
+    sphere(50);
+  popMatrix();
+}
+
+void drawMousePos() {
+  pushMatrix();
+    textSize(32);
+    fill(0);
+    text("mouseX", -width/2 - 800, -height/2 + 280);
+    text(mouseX, -width/2 - 600, -height/2 + 280);
+    text("mouseY", -width/2 - 800, -height/2 + 320);
+    text(mouseY, -width/2 - 600, -height/2 + 320);
+    fill(255);
   popMatrix();
 }
 
@@ -285,10 +294,8 @@ void drawPerson(float floorPos) {
   fill(255);
 }
 
-
 void mousePressed(){
   println("speedMod: " + speedMod);
-
 }
 
 void oscEvent(OscMessage theOscMessage) {

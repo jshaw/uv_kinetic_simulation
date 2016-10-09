@@ -110,14 +110,16 @@ class Ball {
   }
   
   void setYPos(float yUpdate) {
+    
     if(usePacket == true){
+      
       speedMod = (255-speed)/speedAdjust;
   
-      //println(speedMod);
+      println(speedMod);
       
       if (yUpdate < ypos ){
         if (ypos - yUpdate > speedMod){
-        ypos = ypos - speedMod;
+          ypos = ypos - speedMod;
         }
         else {
           ypos = yUpdate;
@@ -127,7 +129,7 @@ class Ball {
       
       if (yUpdate > ypos){
         if (yUpdate - ypos > speedMod){
-        ypos = ypos + speedMod;
+          ypos = ypos + speedMod;
         }
         else {
           ypos = yUpdate;
